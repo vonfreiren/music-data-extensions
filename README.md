@@ -1,8 +1,9 @@
-# music-automstic-tagger
-## Introduction
-Music automatic metadata retriever, including lyrics and cover
+# music-data-extensions
 
-Small application to edit the metadata of songs located in a given folder.
+## Introduction
+Small application to edit the metadata of songs located in a given folder, by retrieving the metadata from online sources.
+It's also used to download the lyrics and cover image of the songs
+
 
 ## Sources
 
@@ -12,11 +13,11 @@ The audio tags are retrieved from:
 - Discogs
 - MusicBrainz
 - Youtube
+- Last.fm
+- Genius
 
 ## Other Features
 
-It also downloads the lyrcis from Genius
+It can be also used to generate the popularity of the songs included in your Music Library.
 
-It also download the cover for each song.
-
-The scripts are very basic so far.
+It can be also used to generate a list of events(Concerts, Festivals, etc) based on the artists included in your Music Library.
