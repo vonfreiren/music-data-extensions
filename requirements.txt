@@ -1,0 +1,8 @@
+discogs_client==2.3.0
+google_images_search==1.4.6
+lyricsgenius==3.0.1
+musicbrainzngs==0.7.1
+mutagen==1.46.0
+pytube==12.1.2
+PyYAML==6.0
+spotipy==2.22.1
