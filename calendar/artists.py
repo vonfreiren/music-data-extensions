@@ -10,7 +10,6 @@ import requests
 import yaml
 from bs4 import BeautifulSoup
 from numpy import random
-import tabulate
 
 config_path = os.path.join(os.path.dirname(__file__), '../config.yaml')
 with open(config_path) as f:
@@ -19,7 +18,7 @@ with open(config_path) as f:
 API_KEY = data['last_fm_api_key']
 API_SECRET = data['last_fm_api_secret']
 path_jekyll = data['save_path_local_concerts']
-
+list_details = []
 
 def parse_url(url, artist_name):
     url = url+'/+events'
@@ -31,8 +30,8 @@ def parse_url(url, artist_name):
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
     ]
     for i in range(1, 4):
-        user_agent = random.choice(np.string_(user_agent_list))
-        headers = {'User-Agent': np.string_(user_agent)}
+        user_agent = str(random.choice((user_agent_list)))
+        headers = {'User-Agent': (user_agent)}
 
     dates = BeautifulSoup(requests.get(url,headers=headers, proxies=urllib.request.getproxies()).content, "html.parser").find_all('td', class_='events-list-item-date')
     list_artists = []
@@ -40,7 +39,6 @@ def parse_url(url, artist_name):
     list_locations = []
     list_concerts = []
     list_location_details = []
-    list_details = []
     for event in dates:
         date = event['content']
         list_dates.append(date)
@@ -60,13 +58,17 @@ def parse_url(url, artist_name):
         list_locations.append(location)
         list_location_details.append(location_details)
         event_dict = {'main': artist_name,'date': date, 'artists': list(set(list_artists)), 'location': location, 'location_details': location_details, 'concert': concert}
-        list_details.append({'main':artist_name, 'date': date, 'artists': list(set(list_artists)), 'location': location, 'location_details': location_details, 'concert': concert})
-        generate_md(event_dict, path_jekyll)
+        list_details.append({'main':artist_name, 'concert': concert, 'date': date, 'artists': ', '.join(list(set(list_artists))), 'location': location, 'location_details': location_details})
+        #generate_md(event_dict, path_jekyll)
 
-    print(list_details)
     df_concerts = pd.DataFrame(list_details)
-    df_concerts.to_html(path_jekyll+'/concerts_2.html', index=False)
-    df_concerts.to_markdown(path_jekyll+'/concerts.md', index=False)
+    if not df_concerts.empty:
+        df_concerts['date'] = pd.to_datetime(df_concerts['date']).dt.date
+        df_concerts.rename(columns={'main': 'Artist', 'date': 'Date', 'artists': 'Artists', 'location': 'Location', 'location_details': 'Location Details', 'concert': 'Concert'}, inplace=True)
+        df_concerts.to_html(path_jekyll, index=False, classes='table-responsive table-bordered', table_id='table_concerts', border=0)
+
+
+
 
 
 def generate_md(event_dict, filepath):
