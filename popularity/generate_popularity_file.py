@@ -13,7 +13,6 @@ path_popularity = data['save_path_local_popularity']
 def generate_file():
 
     df_popularity = pd.read_csv('/Users/javier/PycharmProjects/music-automatic-tagger/popularity/songs.csv').sort_values(by=['Popularity'], ascending=False)
-    df_popularity.to_html(path_popularity, index=False, classes='table-responsive table-bordered', table_id='table_popularity', border=0)
-
+    df_popularity.to_html(path_popularity, index=False, classes='table-responsive table-bordered', table_id='table_popularity', border=0, escape=False, justify='center', col_space=100, na_rep='N/A')
 
 generate_file()

@@ -1,13 +1,12 @@
 import mutagen
-from mutagen.id3 import ID3, TIT2, TPE1, TALB, TCON, TYER, TRCK, APIC
+from mutagen.id3 import ID3, TIT2, TPE1, TALB, TCON, TYER, TRCK, APIC, TPE2
 from mutagen.mp3 import MP3
 import urllib
 
 from tagger.discogs import retrieve_track_number
-from lyrics import search_lyrics
+from tagger.lyrics import search_lyrics
 
-
-def create_tag(filename, year, artist, album, title, genre, track_no, cover):
+def create_tag(filename, year, artist, album, title, genre, track_no, cover, album_artist):
     print(filename)
     if genre is None:
         genre = 'Electronic'
@@ -31,6 +30,11 @@ def create_tag(filename, year, artist, album, title, genre, track_no, cover):
 
     # add genre tag
     audio.tags.add(TCON(encoding=3, text=genre))
+
+    # add album artist tag
+    if album_artist is None:
+        album_artist = artist
+    audio.tags.add(TPE2(encoding=3, text=album_artist))
 
     # add track number tag
     if track_no is None:

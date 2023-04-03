@@ -1,26 +1,34 @@
 import os
+import re
 from difflib import SequenceMatcher
 
 import spotipy
 import yaml
+from mutagen.id3 import ID3
+from mutagen.mp3 import MP3
 from spotipy.oauth2 import SpotifyClientCredentials
 
 config_path = os.path.join(os.path.dirname(__file__), '../config.yaml')
-
-
 with open(config_path) as f:
     data = yaml.load(f, Loader=yaml.FullLoader)
 
 client_id = data['spotify_client_id']
 secret = data['spotify_secret']
+path = data['path_recursive_lyrics']
 
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id,
                                                            client_secret=secret))
 
-
-def search_spotify(filename, artist, song):
+def search_audio_features(filename):
+    audio = MP3(filename, ID3=ID3)
+    artist = audio.tags.get("TPE1")
+    song = audio.tags.get("TIT2")
+    filename = filename.split('/')[-1].replace('.mp3', '')
+    filename = re.sub(r'^\d+\.', '', filename)
+    filename = re.sub('^\d+\s*-\s*', '', filename)
     if artist is not None and song is not None:
-        artist_old = artist
+        artist = str(artist)
+        song = str(song)
         results = sp.search(q='artist:' + artist + ' track:' + song, type='track')
         if len(results['tracks']['items']) == 0:
             results = sp.search(q=filename, limit=1)
@@ -33,22 +41,15 @@ def search_spotify(filename, artist, song):
             results = sp.search(q=song, limit=1)
 
     for idx, track in enumerate(results['tracks']['items']):
-        name = track['name']
-        artist = track['artists'][0]['name']
-        album = track['album']['name']
-        year = track['album']['release_date'][0:4]
-        album_artist = track['album']['artists'][0]['name']
-        if len(track['album']['artists'])>1:
-            album_artist_2 = track['album']['artists'][1]['name']
-        track_no = track['track_number']
-        cover = track['album']['images'][0]['url']
+        found_artist = track['artists'][0]['name']
+        found_song = track['name']
+        ratio = SequenceMatcher(None, artist, found_artist).ratio()
+        ratio_song = SequenceMatcher(None, song, found_song).ratio()
+        if ratio > 0.6 and ratio_song > 0.6:
+            popularity = track['popularity']
+            if popularity is not None:
+                return artist, song, popularity
 
-        ratio_name = SequenceMatcher(None, name, song).ratio()
-        ratio_artist = SequenceMatcher(None, artist, artist_old).ratio()
+    return artist, song, 0
 
-        if ratio_name > 0.35 and ratio_artist > 0.6:
-
-            return name, artist, album, year, album_artist, track_no, cover, None
-
-    return None, None, None, None, None, None, None, None
 

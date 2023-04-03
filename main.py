@@ -23,10 +23,13 @@ path = data['path_recursive']
 def get_metadata(initial_song, initial_artist, initial_album, path):
     song_name = path.split('/')[-1].replace('.mp3', '')
     song_name = re.sub(r'^\d+\.', '', song_name)
+    song_name = re.sub(r'^\d+-\d+\s+-\s+', '', song_name)
 
     yt_results = search_youtube(song_name)
 
-    artist, song = search_lastfm(song_name)
+    artist, song, popularity = search_lastfm(yt_results)
+    if artist is None:
+        artist, song, popularity = search_lastfm(yt_results)
 
 
     name, artist, album, year, album_artist, track_no, cover, genre = search_spotify(song_name, artist, song)
@@ -35,7 +38,7 @@ def get_metadata(initial_song, initial_artist, initial_album, path):
         if name is None:
             name, artist, album, year, album_artist, track_no, cover, genre = search_musicbrainz(song_name)
     if name is not None:
-        create_tag(path, year, artist, album, name, genre, track_no, cover)
+        create_tag(path, year, artist, album, name, genre, track_no, cover, album_artist)
 
 
 

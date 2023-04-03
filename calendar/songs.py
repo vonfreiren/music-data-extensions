@@ -1,9 +1,8 @@
-import re
-from datetime import datetime
 import os
+import re
 import urllib
+from datetime import datetime
 
-import numpy as np
 import pandas as pd
 import pylast
 import requests
@@ -17,7 +16,7 @@ with open(config_path) as f:
 
 API_KEY = data['last_fm_api_key']
 API_SECRET = data['last_fm_api_secret']
-path_jekyll = data['save_path_local_concerts']
+path_jekyll = data['save_path_local_recommended_songs']
 list_details = []
 
 def parse_url_concerts(url, artist_name):
@@ -122,30 +121,26 @@ def generate_md(event_dict, filepath):
         print(e)
 
 def get_songs():
-    list_songs = pd.read_csv('/Users/javier/PycharmProjects/music-automatic-tagger/popularity/songs.csv')[
-        'Song'].unique().tolist()
-    for song in list_songs:
-        network = pylast.LastFMNetwork(
-            api_key=API_KEY,
-            api_secret=API_SECRET,
-        )
-        track = network.get_track(song)
+    list_similar_songs = []
+    list_songs = pd.read_csv('/Users/javier/PycharmProjects/music-automatic-tagger/popularity/songs.csv')
+    for artist, song, popularity in list_songs.values:
+        try:
+            network = pylast.LastFMNetwork(
+                api_key=API_KEY,
+                api_secret=API_SECRET,
+            )
+            if popularity != 0:
+                similar_tracks = network.get_track(artist, song).get_similar()
+                for track in similar_tracks:
+                    recommended_name = track.item.get_name()
+                    recommended_artist = track.item.get_artist().get_name()
+                    list_similar_songs.append({'artist': recommended_artist, 'song': recommended_name, 'original_artist': artist, 'original_song': song})
+        except Exception as e:
+            print(e)
+
+    df_similar_songs = pd.DataFrame(list_similar_songs)
+    df_similar_songs.to_html(path_jekyll, index=False, classes='table-responsive table-bordered', table_id='table_similar_songs',
+                        border=0, escape=False, justify='center', col_space=100, na_rep='N/A')
 
 
-def get_artists():
-    list_artists = pd.read_csv('/Users/javier/PycharmProjects/music-automatic-tagger/popularity/songs.csv')[
-        'Artist'].unique().tolist()
-
-    for artist in list_artists:
-        network = pylast.LastFMNetwork(
-            api_key=API_KEY,
-            api_secret=API_SECRET,
-        )
-        artist = network.get_artist(artist)
-        url = artist.get_url()
-        if url is not None:
-            parse_url_concerts(url, artist.get_name())
-
-get_artists()
-#url= 'https://www.last.fm/music/Blondie/+events'
-#parse_url(url, 'Blondie')
+get_songs()
