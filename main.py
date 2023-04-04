@@ -27,16 +27,16 @@ def get_metadata(initial_song, initial_artist, initial_album, path):
 
     yt_results = search_youtube(song_name)
 
-    artist, song, popularity = search_lastfm(yt_results)
-    if artist is None:
-        artist, song, popularity = search_lastfm(yt_results)
+    yt_artist, yt_song, popularity = search_lastfm(yt_results)
+    if yt_artist is None:
+        yt_artist, yt_song, popularity = search_lastfm(yt_results)
 
 
-    name, artist, album, year, album_artist, track_no, cover, genre = search_spotify(song_name, artist, song)
+    name, artist, album, year, album_artist, track_no, cover, genre = search_spotify(song_name, yt_artist, yt_song)
     if name is None:
         name, artist, album, year, album_artist, track_no, cover, genre = search_discogs(song_name, initial_artist, initial_album, path)
         if name is None:
-            name, artist, album, year, album_artist, track_no, cover, genre = search_musicbrainz(song_name)
+            name, artist, album, year, album_artist, track_no, cover, genre = search_musicbrainz(song_name, yt_artist, yt_song)
     if name is not None:
         create_tag(path, year, artist, album, name, genre, track_no, cover, album_artist)
 

@@ -16,7 +16,7 @@ gis = GoogleImagesSearch(api, cx_id)
 user_musicbrainz = data['user_musicbrainz']
 password_musicbrainz = data['password_musicbrainz']
 
-def search_musicbrainz(filename):
+def search_musicbrainz(filename, yt_artist, yt_song):
 
     musicbrainzngs.auth(user_musicbrainz, password_musicbrainz)
     musicbrainzngs.set_useragent("My Application", "1.0", "https://myapplication.com")
@@ -32,13 +32,10 @@ def search_musicbrainz(filename):
     for release in releases['release-list']:
         temp_title = release['title']
         temp_artist = release['artist-credit'][0]['artist']['name']
-        if get_artist_song(filename):
+        ratio = SequenceMatcher(None, temp_artist + temp_title, yt_artist + yt_song).ratio()
 
-            ratio = SequenceMatcher(None, temp_artist + temp_title, filename).ratio()
-        else:
-            ratio = SequenceMatcher(None, temp_title, filename).ratio()
 
-        if ratio > max_ratio:
+        if ratio > max_ratio *1.2:
             max_ratio = ratio
             title = temp_title
             artist = temp_artist
