@@ -16,7 +16,7 @@ with open(config_path) as f:
 
 client_id = data['spotify_client_id']
 secret = data['spotify_secret']
-path = data['path_recursive_lyrics']
+path = data['path_recursive_popularity']
 
 
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id,
