@@ -1,3 +1,4 @@
+import json
 import re
 from datetime import datetime
 import os
@@ -19,6 +20,9 @@ API_KEY = data['last_fm_api_key']
 API_SECRET = data['last_fm_api_secret']
 path_jekyll = data['save_path_local_concerts']
 list_details = []
+
+filepath = data['save_path_local_concerts']
+
 
 def parse_url_concerts(url, artist_name):
     url = url+'/+events'
@@ -58,8 +62,22 @@ def parse_url_concerts(url, artist_name):
         list_locations.append(location)
         list_location_details.append(location_details)
         event_dict = {'main': artist_name,'date': date, 'artists': list(set(list_artists)), 'location': location, 'location_details': location_details, 'concert': concert}
-        list_details.append({'main':artist_name, 'concert': concert, 'date': date, 'artists': ', '.join(list(set(list_artists))), 'location': location, 'location_details': location_details})
+
+        if (event_dict['date'] and event_dict['artists']) not in list_details:
+            list_details.append({'main':artist_name, 'concert': concert, 'date': date, 'artists': ', '.join(list(set(list_artists))), 'location': location, 'location_details': location_details})
+
+
         #generate_md(event_dict, path_jekyll)
+
+    list_details_sorted = sorted(list_details, key=lambda k: k['date'])
+    final_dict = {"concerts": list_details_sorted}
+
+    full_name = os.path.join(filepath, "concerts" + ".json")
+
+    with open(full_name, 'w', encoding='utf-8') as file:
+        json.dump(final_dict, file)
+
+        file.close()
 
     df_concerts = pd.DataFrame(list_details)
     if not df_concerts.empty:

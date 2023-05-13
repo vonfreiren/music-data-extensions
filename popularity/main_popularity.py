@@ -1,5 +1,6 @@
 import glob
 import glob
+import json
 import os
 
 import pandas as pd
@@ -17,7 +18,7 @@ with open(config_path) as f:
 client_id = data['spotify_client_id']
 secret = data['spotify_secret']
 path = data['path_recursive_popularity']
-
+filepath = data['save_path_local_popularity']
 
 sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=client_id,
                                                            client_secret=secret))
@@ -26,8 +27,6 @@ config_path = os.path.join(os.path.dirname(__file__), '../config.yaml')
 with open(config_path) as f:
     data = yaml.load(f, Loader=yaml.FullLoader)
 
-
-path_popularity = data['save_path_local_popularity']
 
 
 def main(path):
@@ -42,11 +41,22 @@ def main(path):
             dict_song = {'Artist': artist, 'Song': name, 'Popularity': popularity}
             list_songs.append(dict_song)
 
-    df_popularity = pd.DataFrame(list_songs)
-    df_popularity.to_html(path_popularity, index=False, classes='table-responsive table-bordered', table_id='table_popularity', border=0, escape=False, justify='center', col_space=100, na_rep='N/A')
+    generate_json(list_songs, filepath)
+
+    #df_popularity = pd.DataFrame(list_songs)
+    #df_popularity.to_html(filepath, index=False, classes='table-responsive table-bordered', table_id='table_popularity', border=0, escape=False, justify='center', col_space=100, na_rep='N/A')
 
 
+def generate_json(list_details, filepath):
+    list_details_sorted = sorted(list_details, key=lambda k: k['Popularity'])
+    final_dict = {"songs": list_details_sorted}
 
+    full_name = os.path.join(filepath, "songs" + ".json")
+
+    with open(full_name, 'w', encoding='utf-8') as file:
+        json.dump(final_dict, file)
+
+        file.close()
 
 
 
