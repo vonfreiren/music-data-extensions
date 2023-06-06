@@ -43,7 +43,10 @@ def search_musicbrainz(filename, yt_artist, yt_song):
             first_find = releases['release-list'][0]
             year = first_find['date']
             album = first_find['release-group']['title']
-            genre = first_find['release-group']['primary-type']
+            if 'primary-type' in first_find['release-group']:
+                genre = first_find['release-group']['primary-type']
+            else:
+                genre = 'Electronic'
             album_artist = first_find['artist-credit'][0]['artist']['name']
             # track_no = first_find['medium-list'][0]['track-count'][0]['number']
             track_no = first_find['medium-list'][0]['track-count']

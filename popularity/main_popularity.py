@@ -35,11 +35,14 @@ def main(path):
     list_songs = []
 
     for item in files:
-        path = item
-        artist, name, popularity = retrieve_popularity(path)
-        if popularity is not None:
-            dict_song = {'Artist': artist, 'Song': name, 'Popularity': popularity}
-            list_songs.append(dict_song)
+        try:
+            path = item
+            artist, name, popularity, link = retrieve_popularity(path)
+            if popularity is not None:
+                dict_song = {'artist': artist, 'song': name, 'popularity': popularity, 'link': link}
+                list_songs.append(dict_song)
+        except:
+            print('Error with file: ' + item)
 
     generate_json(list_songs, filepath)
 
@@ -48,7 +51,7 @@ def main(path):
 
 
 def generate_json(list_details, filepath):
-    list_details_sorted = sorted(list_details, key=lambda k: k['Popularity'])
+    list_details_sorted = sorted(list_details, key=lambda k: k['popularity'])
     final_dict = {"songs": list_details_sorted}
 
     full_name = os.path.join(filepath, "songs" + ".json")

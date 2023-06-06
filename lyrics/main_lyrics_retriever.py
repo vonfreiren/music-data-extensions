@@ -35,6 +35,7 @@ def add_lyrics(filename):
 
             lyrics_text = search_lyrics(str(title), str(artist))
             if lyrics_text is not None:
+                print(filename)
                 lyrics = mutagen.id3.USLT(encoding=3, lang=u'eng', desc=u'', text=lyrics_text)
                 audio.tags.add(lyrics)
                 audio.save()
