@@ -21,3 +21,9 @@ The audio tags are retrieved from:
 It can be also used to generate the popularity of the songs included in your Music Library.
 
 It can be also used to generate a list of events(Concerts, Festivals, etc) based on the artists included in your Music Library.
+
+
+## Execution 
+
+1. Run main_popularity.py
+2. Run generate_popularity.file
