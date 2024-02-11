@@ -6,3 +6,4 @@ mutagen==1.46.0
 pytube==12.1.2
 PyYAML==6.0
 spotipy==2.22.1
+pytube
